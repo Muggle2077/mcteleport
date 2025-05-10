@@ -1,0 +1,41 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:written_book",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:custom_data": {
+                  "is_teleport": true,
+                  "teleport": "chest"
+                },
+                "minecraft:custom_name": {
+                  "translate": "teleport.chest",
+                  "italic": false
+                },
+                "minecraft:item_model": "teleport:chest",
+                "minecraft:enchantment_glint_override": false,
+                "written_book_content": {
+                  "title": {
+                    "raw": "Muggle2077"
+                  },
+                  "author": "Muggle2077",
+                  "pages": [
+                    {
+                      "raw": [{"text":"","color":"white"},"\n\n\n",{"translate":"teleport.chest.space"},{"translate":"teleport.chest.title","click_event":{"action":"run_command","command":"/function teleport:item"},"hover_event":{"action":"show_text","value":{"translate":"teleport.chest.title.hover"}}},"\n\n             ",{"text":"限","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:surface/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.surface"}}},"\n\n     ",{"text":"界","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:the_nether/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.the_nether"}}},{"text":"末","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:the_end/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.the_end"}}},{"text":"顶","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:top/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.top"}}},{"text":"生","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:spawn/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.spawn"}}},{"text":"世","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:world_spawn/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.world_spawn"}}},"\n\n     ",{"text":"穿","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:through/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.through"}}},{"text":"前","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:forward/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.forward"}}},{"text":"飞","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:fly/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.fly"}}},{"text":"后","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:backward/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.backward"}}},"\n\n         ",{"text":"随","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:random/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.random"}}},{"text":"点","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:point/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.point"}}},{"text":"撤","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:undo/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.undo"}}},{"text":"史","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:history/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.history"}}},"\n\n             ",{"text":"设","font":"teleport:16","click_event":{"action":"run_command","command":"/function teleport:settings/use"},"hover_event":{"action":"show_text","value":{"translate":"teleport.settings"}}}]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

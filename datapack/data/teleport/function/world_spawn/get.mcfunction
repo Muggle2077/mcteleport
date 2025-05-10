@@ -1,0 +1,1 @@
+execute summon minecraft:marker run function teleport:world_spawn/get2

@@ -1,0 +1,2 @@
+execute unless score @s teleport.no_sound matches 1 at @s run playsound minecraft:entity.player.teleport player @s
+execute unless score @s teleport.no_message matches 1 run function teleport:use/message

@@ -1,0 +1,2 @@
+execute if items entity @s weapon.mainhand #teleport:books[minecraft:custom_data~{teleport:'add_a_point'}] run function teleport:add_a_point/mainhand
+execute if items entity @s weapon.offhand #teleport:books[minecraft:custom_data~{teleport:'add_a_point'}] run function teleport:add_a_point/offhand

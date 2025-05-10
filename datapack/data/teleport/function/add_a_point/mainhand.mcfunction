@@ -1,0 +1,2 @@
+execute if items entity @s weapon.mainhand minecraft:written_book run return run function teleport:add_a_point/mainhand/written
+execute if data entity @s SelectedItem.components."minecraft:writable_book_content".pages[0] run function teleport:add_a_point/mainhand/writable

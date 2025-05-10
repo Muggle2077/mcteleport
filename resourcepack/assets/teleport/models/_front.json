@@ -1,0 +1,15 @@
+{
+    "parent": "minecraft:item/generated",
+    "display": {
+      "firstperson_righthand": {
+        "rotation": [0, 0, 0],
+        "translation": [2, 4, -1],
+        "scale": [0.4, 0.4, 0.4]
+      },
+      "firstperson_lefthand": {
+        "rotation": [0, 0, 0],
+        "translation": [2, 4, -1],
+        "scale": [0.4, 0.4, 0.4]
+      }
+    }
+  }

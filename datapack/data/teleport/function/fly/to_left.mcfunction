@@ -1,0 +1,1 @@
+scoreboard players set @s teleport.fly_mode 3

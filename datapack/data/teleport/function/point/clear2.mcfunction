@@ -1,0 +1,1 @@
+$data modify storage teleport:u p$(uid) set value []

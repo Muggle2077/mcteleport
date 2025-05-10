@@ -1,0 +1,28 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:writable_book",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:custom_data": {
+                  "is_teleport": true,
+                  "teleport": "add_a_point"
+                },
+                "minecraft:item_name": {
+                  "translate": "teleport.add_a_point"
+                },
+                "minecraft:item_model": "teleport:add_a_point"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

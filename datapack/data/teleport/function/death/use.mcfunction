@@ -1,0 +1,1 @@
+execute if data entity @s LastDeathLocation run function teleport:death/main

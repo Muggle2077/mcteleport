@@ -1,0 +1,19 @@
+loot give @s loot teleport:chest
+loot give @s loot teleport:fly
+loot give @s loot teleport:forward
+loot give @s loot teleport:backward
+loot give @s loot teleport:through
+loot give @s loot teleport:top
+loot give @s loot teleport:surface
+loot give @s loot teleport:random
+loot give @s loot teleport:the_nether
+loot give @s loot teleport:the_end
+loot give @s loot teleport:history
+loot give @s loot teleport:undo
+loot give @s loot teleport:point
+loot give @s loot teleport:world_spawn
+loot give @s loot teleport:spawn
+loot give @s loot teleport:death
+loot give @s loot teleport:settings
+loot give @s loot teleport:add_a_point
+# loot give @s loot teleport:modify_the_point

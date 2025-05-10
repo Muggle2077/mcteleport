@@ -1,0 +1,2 @@
+data modify storage teleport:t translate.translate set from storage teleport:t respawn.dimension
+title @s actionbar [{nbt:"translate",storage:"teleport:t",interpret:true}," ",{nbt:"respawn.x",storage:"teleport:t"},", ",{nbt:"respawn.y",storage:"teleport:t"},", ",{nbt:"respawn.z",storage:"teleport:t"}]

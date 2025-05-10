@@ -1,0 +1,1 @@
+execute if score @s teleport.uid matches ..2147483647 run function teleport:undo/main

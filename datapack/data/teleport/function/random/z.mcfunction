@@ -1,0 +1,1 @@
+$execute store result score #random_z teleport run random value $(min)..$(max)

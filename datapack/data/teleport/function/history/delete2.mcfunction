@@ -1,0 +1,1 @@
+$data remove storage teleport:u h$(uid)[-$(rid)]

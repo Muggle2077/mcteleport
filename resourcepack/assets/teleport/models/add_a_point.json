@@ -1,0 +1,6 @@
+{
+  "parent": "teleport:_front",
+  "textures": {
+    "layer0": "teleport:item/add_a_point"
+  }
+}

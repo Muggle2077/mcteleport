@@ -1,0 +1,238 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/clear.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "清"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/death.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "死"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/death_off.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "d"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/feedback.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "馈"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/feedback_off.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "f"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/fly_cancel.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "取"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/history_off.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "h"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/muggle2077.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "作"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/sounds.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "声"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/sounds_off.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "s"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/16/teleport.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "包"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/backward.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "后"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/fly.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "飞"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/forward.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "前"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/history.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "史"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/point.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "点"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/random.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "随"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/settings.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "设"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/spawn.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "生"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/surface.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "限"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/the_end.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "末"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/the_nether.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "界"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/through.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "穿"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/top.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "顶"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/undo.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "撤"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:item/world_spawn.png",
+      "height": 16,
+      "ascent": 12,
+      "chars": [
+        "世"
+      ]
+    }
+  ]
+}

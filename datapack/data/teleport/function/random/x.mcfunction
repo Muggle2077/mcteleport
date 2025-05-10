@@ -1,0 +1,1 @@
+$execute store result score #random_x teleport run random value $(min)..$(max)

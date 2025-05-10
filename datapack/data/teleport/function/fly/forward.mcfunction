@@ -1,0 +1,1 @@
+execute positioned ^ ^ ^0.05 if function teleport:if/fly_through run function teleport:fly/ray

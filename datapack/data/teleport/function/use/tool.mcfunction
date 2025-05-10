@@ -1,0 +1,1 @@
+$function teleport:$(id)/use

@@ -1,0 +1,28 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:custom_data": {
+                  "is_teleport": true,
+                  "teleport": "the_end"
+                },
+                "minecraft:item_name": {
+                  "translate": "teleport.the_end"
+                },
+                "minecraft:item_model": "teleport:the_end"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

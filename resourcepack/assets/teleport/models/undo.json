@@ -1,0 +1,6 @@
+{
+  "parent": "teleport:_side",
+  "textures": {
+    "layer0": "teleport:item/undo"
+  }
+}

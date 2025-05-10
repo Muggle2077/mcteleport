@@ -1,0 +1,6 @@
+datapack/output.*
+datapack/output/
+datapack/__pycache__/
+resourcepack/output.*
+resourcepack/output/
+resourcepack/__pycache__/

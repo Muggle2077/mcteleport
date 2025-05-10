@@ -1,0 +1,166 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/add_a_point.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "新"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/clear.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "清"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/delete.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "删"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/go.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "传"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/history.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "史"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/modify_the_point.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "改"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/pin.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "置"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/point.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "点"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/record_pause.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "暂"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/record_start.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "开"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/refresh.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "刷"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/reset.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "默"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/settings.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "设"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/spawn.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "生"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/the_end.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "末"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/the_nether.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "界"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/undo.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "撤"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "teleport:font/12/world_spawn.png",
+      "height": 12,
+      "ascent": 10,
+      "chars": [
+        "世"
+      ]
+    }
+  ]
+}

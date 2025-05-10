@@ -1,0 +1,2 @@
+execute if items entity @s weapon.offhand minecraft:written_book run return run function teleport:add_a_point/offhand/written
+execute if data entity @s equipment.offhand.components."minecraft:writable_book_content".pages[0] run function teleport:add_a_point/offhand/writable

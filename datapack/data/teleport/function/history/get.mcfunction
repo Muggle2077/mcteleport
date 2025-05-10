@@ -1,0 +1,1 @@
+$data modify storage teleport:t h set from storage teleport:u h$(uid)
