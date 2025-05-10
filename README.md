@@ -45,6 +45,10 @@ Your x and z coordinates will change by a random value whose absolute value is b
 
 Teleport you to the Nether.
 
+If already in the Nether, return you to the original dimension.
+
+The same as `execute in ... run tp @s ~ ~ ~`.
+
 ## ![](resourcepack/assets/teleport/textures/item/the_end.png) To the End
 
 Teleport you to the obsidian platform (to 100, 49, 0) in the End.
