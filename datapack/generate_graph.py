@@ -18,13 +18,13 @@ jspath = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
 
 
 class RePattern:
-    mcfunction = r"\bfunction [a-z0-9_.-]+:([a-z0-9_./-]+)"
-    scoreboard = r"\bscore ([^ \n]+) ([^ \n]+)"
-    scoreboard_objective = r"\bscoreboard objectives [^ \n]+ ([^ \n]+)"
-    scoreboard_player = r"\bscoreboard players [^ \n]+ ([^ \n]+)"
-    tag = r"\btag [^ \n]+ [^ \n]+ ([^ \n]+)"
-    tags = r"\bTags *: *(\[[^\n]+\])"
-    storage = r"\bstorage ([^ \n]+) ([^ \n]+)"
+    mcfunction = re.compile(r"\bfunction [a-z0-9_.-]+:([a-z0-9_./-]+)")
+    scoreboard = re.compile(r"\bscore ([^ \n]+) ([^ \n]+)")
+    scoreboard_objective = re.compile(r"\bscoreboard objectives [^ \n]+ ([^ \n]+)")
+    scoreboard_player = re.compile(r"\bscoreboard players [^ \n]+ ([^ \n]+)")
+    tag = re.compile(r"\btag [^ \n]+ [^ \n]+ ([^ \n]+)")
+    tags = re.compile(r"\bTags *: *(\[[^\n]+\])")
+    storage = re.compile(r"\bstorage ([^ \n]+) ([^ \n]+)")
 
 
 class Color:
@@ -59,11 +59,11 @@ class Width:
 
 class Mcfunction:
 
-    def __init__(self, name: str, children: set[str], comment: str):
+    def __init__(self, name: str):
         self.name: str = name
-        self.comment: str = comment
-        self.children: set[str] = children
-        self.parents: set[str] = set()
+        self.comment: str = None
+        self.children: set[Mcfunction] = set()
+        self.parents: set[Mcfunction] = set()
 
         self.tree: int = None
         self.depth: int = None
@@ -94,7 +94,7 @@ class Mcfunction:
                 self.level = 0
                 self.leaves = 0
                 for child in self.children:
-                    child_level, child_leaves = mcfunctions[child].build_tree(
+                    child_level, child_leaves = child.build_tree(
                         tree=tree, depth=depth + 1
                     )
                     self.level = max(self.level, child_level)
@@ -112,7 +112,7 @@ class Mcfunction:
             self.tree = tree
             self.depth = depth
             for child in self.children:
-                mcfunctions[child].deepen(tree=tree, depth=depth + 1)
+                child.deepen(tree=tree, depth=depth + 1)
 
     def set_color(self):
         if self.color is None:
@@ -121,25 +121,22 @@ class Mcfunction:
             else:
                 min_depth = self.depth
                 for parent in self.parents:
-                    if mcfunctions[parent].depth < min_depth:
-                        min_depth = mcfunctions[parent].depth
+                    if parent.depth < min_depth:
+                        min_depth = parent.depth
                         best_parent = parent
-                self.color = mcfunctions[best_parent].set_color()
+                self.color = best_parent.set_color()
                 for parent in self.parents:
                     if parent != best_parent:
-                        mcfunctions[parent].set_color()
+                        parent.set_color()
         return self.color
 
-    @staticmethod
-    def get_comment(text: str):
+    def set_comment(self, text: str):
         if text.startswith("# "):
             newline_pos = text.find("\n")
             if newline_pos == -1:
-                return text[2:]
+                self.comment = text[2:]
             else:
-                return text[2:newline_pos]
-        else:
-            return None
+                self.comment = text[2:newline_pos]
 
     @staticmethod
     def should_ignore(name: str):
@@ -191,46 +188,33 @@ for path in input_dir.rglob(f"*.mcfunction"):
         continue
     with open(path, mode="r", encoding="utf-8") as mcfunction_file:
         mcfunction_contents = mcfunction_file.read()
-        children = set(re.findall(RePattern.mcfunction, mcfunction_contents))
-        children = {child for child in children if not Mcfunction.should_ignore(child)}
-        mcfunctions[name] = Mcfunction(
-            name=name,
-            children=children,
-            comment=Mcfunction.get_comment(mcfunction_contents),
-        )
-        result_list = re.findall(RePattern.scoreboard, mcfunction_contents)
-        for i in result_list:
-            score_boards.add(i[1])
-            score_holders.add(i[0])
-        result_list = re.findall(RePattern.scoreboard_objective, mcfunction_contents)
-        for i in result_list:
-            score_boards.add(i)
-        result_list = re.findall(RePattern.scoreboard_player, mcfunction_contents)
-        for i in result_list:
-            score_holders.add(i)
-        result_list = re.findall(RePattern.tag, mcfunction_contents)
-        for i in result_list:
-            tags.add(i)
-        result_list = re.findall(RePattern.tags, mcfunction_contents)
-        for i in result_list:
-            tags |= set(ast.literal_eval(i))
-        result_list = re.findall(RePattern.storage, mcfunction_contents)
-        for i in result_list:
+        if name not in mcfunctions:
+            mcfunctions[name] = Mcfunction(name=name)
+        mcfunctions[name].set_comment(mcfunction_contents)
+        for child_name in RePattern.mcfunction.findall(mcfunction_contents):
+            if Mcfunction.should_ignore(child_name):
+                continue
+            if child_name not in mcfunctions:
+                mcfunctions[child_name] = Mcfunction(name=child_name)
+            mcfunctions[name].children.add(mcfunctions[child_name])
+
+        for holder, board in RePattern.scoreboard.findall(mcfunction_contents):
+            score_boards.add(board)
+            score_holders.add(holder)
+        score_boards.update(RePattern.scoreboard_objective.findall(mcfunction_contents))
+        score_holders.update(RePattern.scoreboard_player.findall(mcfunction_contents))
+        tags.update(RePattern.tag.findall(mcfunction_contents))
+        for i in RePattern.tags.findall(mcfunction_contents):
+            tags.update(ast.literal_eval(i))
+        for i in RePattern.storage.findall(mcfunction_contents):
             storages_set.add(i[0])
             nbt_paths_set.add(i[0] + "." + i[1])
 
-# 创建被调用了但是没有相应文件的函数
-new_mcfunctions = {}
-for name in mcfunctions:
-    for child in mcfunctions[name].children:
-        if child not in mcfunctions:
-            new_mcfunctions[child] = Mcfunction(name=child, children=set())
-mcfunctions.update(new_mcfunctions)
 
 # 获取每个函数的 parents
 for name in mcfunctions:
     for child in mcfunctions[name].children:
-        mcfunctions[child].parents.add(name)
+        child.parents.add(mcfunctions[name])
 
 # 生成树
 tree = 0
@@ -243,7 +227,7 @@ for name in mcfunctions:
 for name in mcfunctions:
     if mcfunctions[name].need_deepen:
         for child in mcfunctions[name].children:
-            mcfunctions[child].deepen(tree=tree, depth=mcfunctions[name].depth + 1)
+            child.deepen(tree=tree, depth=mcfunctions[name].depth + 1)
         tree += 1
 
 # 设置颜色
@@ -272,9 +256,9 @@ arrow_styles: list[tuple[str, int]] = []
 # 每种箭头的样式，颜色宽度 -> 箭头id
 arrow_styles_dict: dict[tuple[str, int], set] = {}
 
-for name, mcfunction in mcfunctions.items():
-    for child in sorted(mcfunction.children):
-        arrows_part.append(f"{name} --> {child}")
+for name, mcfunction in sorted(mcfunctions.items()):
+    for child_name in sorted(child.name for child in mcfunction.children):
+        arrows_part.append(f"{name} --> {child_name}")
         arrow_styles.append((Color.get(mcfunction), Width.get(mcfunction)))
 
 for arrow_id, style in enumerate(arrow_styles):
