@@ -12,19 +12,18 @@ start_time = time.time()
 input_dir = Path(".") / "data/teleport/function"
 output_path = Path(".") / "output.html"
 
-graph_start = "graph LR"
-
 jspath = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
 
 
 class RePattern:
     mcfunction = re.compile(r"\bfunction [a-z0-9_.-]+:([a-z0-9_./-]+)")
-    scoreboard = re.compile(r"\bscore ([^ \n]+) ([^ \n]+)")
-    scoreboard_objective = re.compile(r"\bscoreboard objectives [^ \n]+ ([^ \n]+)")
-    scoreboard_player = re.compile(r"\bscoreboard players [^ \n]+ ([^ \n]+)")
+    score_holder_board = re.compile(r"\bscore ([^ \n]+) ([^ \n]+)")
+    score_board = re.compile(r"\bscoreboard objectives [^ \n]+ ([^ \n]+)")
+    score_holder = re.compile(r"\bscoreboard players [^ \n]+ ([^ \n]+)")
     tag = re.compile(r"\btag [^ \n]+ [^ \n]+ ([^ \n]+)")
     tags = re.compile(r"\bTags *: *(\[[^\n]+\])")
     storage = re.compile(r"\bstorage ([^ \n]+) ([^ \n]+)")
+    pathsplit = re.compile(r"(?<=\])\.|\.|(?=\[)")
 
 
 class Color:
@@ -178,8 +177,7 @@ mcfunctions: dict[str, Mcfunction] = {}
 score_boards: set[str] = set()
 score_holders: set[str] = set()
 tags: set[str] = set()
-storages_set: set[str] = set()
-nbt_paths_set: set[str] = set()
+nbt_paths_dict: dict[str, set[str]] = {}
 
 # 遍历文件，获取每个函数的 name 和 children
 for path in input_dir.rglob(f"*.mcfunction"):
@@ -198,18 +196,18 @@ for path in input_dir.rglob(f"*.mcfunction"):
                 mcfunctions[child_name] = Mcfunction(name=child_name)
             mcfunctions[name].children.add(mcfunctions[child_name])
 
-        for holder, board in RePattern.scoreboard.findall(mcfunction_contents):
+        for holder, board in RePattern.score_holder_board.findall(mcfunction_contents):
             score_boards.add(board)
             score_holders.add(holder)
-        score_boards.update(RePattern.scoreboard_objective.findall(mcfunction_contents))
-        score_holders.update(RePattern.scoreboard_player.findall(mcfunction_contents))
+        score_boards.update(RePattern.score_board.findall(mcfunction_contents))
+        score_holders.update(RePattern.score_holder.findall(mcfunction_contents))
         tags.update(RePattern.tag.findall(mcfunction_contents))
         for i in RePattern.tags.findall(mcfunction_contents):
             tags.update(ast.literal_eval(i))
-        for i in RePattern.storage.findall(mcfunction_contents):
-            storages_set.add(i[0])
-            nbt_paths_set.add(i[0] + "." + i[1])
-
+        for storage, nbtpaths in RePattern.storage.findall(mcfunction_contents):
+            if storage not in nbt_paths_dict:
+                nbt_paths_dict[storage] = set()
+            nbt_paths_dict[storage].add(nbtpaths)
 
 # 获取每个函数的 parents
 for name in mcfunctions:
@@ -273,26 +271,26 @@ arrow_styles_part = [
 
 nbt_paths: dict[str, NbtPath] = {}
 
-for path in nbt_paths_set:
-    path_parts = re.split(r"(?<=\])\.|\.|(?=\[)", path)
-    path_parts = [_ for _ in path_parts if _ != ""]
+nbt_paths_gen = (
+    f"{storage}.{nbtpath}"
+    for storage in nbt_paths_dict
+    for nbtpath in nbt_paths_dict[storage]
+)
 
-    current_parts = []
+for path in nbt_paths_gen:
+    path_parts = [part for part in RePattern.pathsplit.split(path) if part]
+    current_key_parts = []
     for part in path_parts:
-        current_parts.append(part)
-        key = NbtPath.filter(".".join(current_parts))
-        parent_key = (
-            NbtPath.filter(".".join(current_parts[:-1]))
-            if len(current_parts) > 1
-            else None
-        )
+        current_key_parts.append(part)
+        key = NbtPath.filter(".".join(current_key_parts))
         if key not in nbt_paths:
-            nbt_paths[key] = NbtPath(name=key, title=current_parts[-1])
-        if parent_key is not None:
+            nbt_paths[key] = NbtPath(name=key, title=part)
+        if len(current_key_parts) > 1:
+            parent_key = NbtPath.filter(".".join(current_key_parts[:-1]))
             nbt_paths[parent_key].children.add(key)
 
 Color.reset()
-for name in storages_set:
+for name in nbt_paths_dict:
     for child in nbt_paths[name].children:
         nbt_paths[child].set_color(Color.give())
 
@@ -309,12 +307,10 @@ nbt_frame_styles_part: list[str] = [
 nbt_arrows_part: list[str] = []
 arrow_styles: list[str] = []
 arrow_styles_dict: dict[str, set[int]] = {}
-for name, storage_path in nbt_paths.items():
-    for child in sorted(storage_path.children):
+for name, nbt_path in nbt_paths.items():
+    for child in sorted(nbt_path.children):
         nbt_arrows_part.append(f"{name} --> {child}")
-        arrow_styles.append(
-            Color.get(storage_path) if storage_path.color is not None else None
-        )
+        arrow_styles.append(Color.get(nbt_path) if nbt_path.color is not None else None)
 
 for arrow_id, style in enumerate(arrow_styles):
     if style is None:
@@ -345,7 +341,7 @@ with output_path.open(mode="w+", encoding="utf-8") as readme_file:
   </script>
   <h1>functions</h1>
   <pre class="mermaid">
-{graph_start}
+graph LR
 {"\n".join(frames_part + arrows_part + frame_styles_part + arrow_styles_part)}
   </pre>
   <h1>scoreboard objectives</h1>
@@ -368,7 +364,7 @@ with output_path.open(mode="w+", encoding="utf-8") as readme_file:
   </pre>
   <h1>storage</h1>
   <pre class="mermaid">
-{graph_start}
+graph LR
 {"\n".join(nbt_frames_part + nbt_arrows_part + nbt_frame_styles_part + nbt_arrow_styles_part)}
   </pre>
 </body>"""
