@@ -6,29 +6,28 @@ import random
 import re
 import time
 from pathlib import Path
+from colors import get_colors
 
-start_time = time.time()
+start_time = time.perf_counter_ns()
 
 input_dir = Path(".") / "data/teleport/function"
 output_path = Path(".") / "output.html"
-
-graph_start = "graph LR"
 
 jspath = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
 
 
 class RePattern:
-    mcfunction = r"\bfunction [a-z0-9_.-]+:([a-z0-9_./-]+)"
-    scoreboard = r"\bscore ([^ \n]+) ([^ \n]+)"
-    scoreboard_objective = r"\bscoreboard objectives [^ \n]+ ([^ \n]+)"
-    scoreboard_player = r"\bscoreboard players [^ \n]+ ([^ \n]+)"
-    tag = r"\btag [^ \n]+ [^ \n]+ ([^ \n]+)"
-    tags = r"\bTags *: *(\[[^\n]+\])"
-    storage = r"\bstorage ([^ \n]+) ([^ \n]+)"
+    mcfunction = re.compile(r"\bfunction [a-z0-9_.-]+:([a-z0-9_./-]+)")
+    score_holder_board = re.compile(r"\bscore ([^ \n]+) ([^ \n]+)")
+    score_board = re.compile(r"\bscoreboard objectives [^ \n]+ ([^ \n]+)")
+    score_holder = re.compile(r"\bscoreboard players [^ \n]+ ([^ \n]+)")
+    tag = re.compile(r"\btag [^ \n]+ [^ \n]+ ([^ \n]+)")
+    tags = re.compile(r"\bTags *: *(\[[^\n]+\])")
+    storage = re.compile(r"\bstorage ([^ \n]+) ([^ \n]+)")
+    pathsplit = re.compile(r"(?<=\])\.|\.|(?=\[)")
 
 
 class Color:
-    from colors import get_colors
 
     colors = get_colors(lambda v: v >= 0.7)
     count = len(colors)
@@ -59,29 +58,22 @@ class Width:
 
 class Mcfunction:
 
-    def __init__(self, name: str, children: set[str], comment: str):
+    def __init__(self, name: str):
         self.name: str = name
-        self.comment: str = comment
-        self.children: set[str] = children
-        self.parents: set[str] = set()
+        self.comment: str | None = None
+        self.children: set[Mcfunction] = set()
+        self.parents: set[Mcfunction] = set()
 
-        self.tree: int = None
-        self.depth: int = None
-        self.level: int = None
+        self.tree: int | None = None
+        self.depth: int | None = None
+        self.level: int | None = None
         self.need_deepen: bool = False
-        self.leaves: int = None
+        self.leaves: int | None = None
 
-        self.color: int = None
+        self.color: int | None = None
 
     def __repr__(self):
-        return str(
-            {
-                "name": self.name,
-                "color": self.color,
-                "comment": self.comment,
-                "children": self.children,
-            }
-        )
+        return str({"name": self.name, "children": self.children})
 
     def build_tree(self, tree: int, depth: int = 1):
         if self.tree is None:
@@ -94,25 +86,29 @@ class Mcfunction:
                 self.level = 0
                 self.leaves = 0
                 for child in self.children:
-                    child_level, child_leaves = mcfunctions[child].build_tree(
+                    child_level, child_leaves = child.build_tree(
                         tree=tree, depth=depth + 1
                     )
                     self.level = max(self.level, child_level)
                     self.leaves += child_leaves
+                assert self.level is not None
                 self.level += 1
         elif self.tree == tree:
             return self.level, 1
-        elif self.depth < depth:
-            self.need_deepen = True
-            self.depth = depth
+        else:
+            assert self.depth is not None
+            if self.depth < depth:
+                self.need_deepen = True
+                self.depth = depth
         return self.level, self.leaves
 
     def deepen(self, tree: int, depth: int):
+        assert self.depth is not None
         if self.tree != tree and self.depth < depth:
             self.tree = tree
             self.depth = depth
             for child in self.children:
-                mcfunctions[child].deepen(tree=tree, depth=depth + 1)
+                child.deepen(tree=tree, depth=depth + 1)
 
     def set_color(self):
         if self.color is None:
@@ -121,25 +117,22 @@ class Mcfunction:
             else:
                 min_depth = self.depth
                 for parent in self.parents:
-                    if mcfunctions[parent].depth < min_depth:
-                        min_depth = mcfunctions[parent].depth
+                    if parent.depth < min_depth:
+                        min_depth = parent.depth
                         best_parent = parent
-                self.color = mcfunctions[best_parent].set_color()
+                self.color = best_parent.set_color()
                 for parent in self.parents:
                     if parent != best_parent:
-                        mcfunctions[parent].set_color()
+                        parent.set_color()
         return self.color
 
-    @staticmethod
-    def get_comment(text: str):
+    def set_comment(self, text: str):
         if text.startswith("# "):
             newline_pos = text.find("\n")
             if newline_pos == -1:
-                return text[2:]
+                self.comment = text[2:]
             else:
-                return text[2:newline_pos]
-        else:
-            return None
+                self.comment = text[2:newline_pos]
 
     @staticmethod
     def should_ignore(name: str):
@@ -151,86 +144,69 @@ class Mcfunction:
 
 
 class NbtPath:
+    max_id = -1
+
+    @classmethod
+    def give_id(cls):
+        cls.max_id += 1
+        return cls.max_id
+
     def __init__(self, name: str, title: str):
+        self.id = self.give_id()
         self.name: str = name
         self.title: str = title
-        self.children: set[str] = set()
-        self.color: int = None
+        self.children: set[NbtPath] = set()
+        self.color: int | None = None
 
     def __repr__(self):
-        return str(
-            {
-                "name": self.name,
-                "color": self.color,
-                "title": self.title,
-                "children": self.children,
-            }
-        )
+        return str({"name": self.name, "children": self.children})
 
     def set_color(self, color):
         self.color = color
         for child in self.children:
-            nbt_paths[child].set_color(color)
-
-    @staticmethod
-    def filter(path):
-        return re.sub(r'[()[\]<>{}"-]', "_", path)
+            child.set_color(color)
 
 
 mcfunctions: dict[str, Mcfunction] = {}
 score_boards: set[str] = set()
 score_holders: set[str] = set()
 tags: set[str] = set()
-storages_set: set[str] = set()
-nbt_paths_set: set[str] = set()
+nbt_paths_dict: dict[str, set[str]] = {}
 
 # 遍历文件，获取每个函数的 name 和 children
 for path in input_dir.rglob(f"*.mcfunction"):
     name = path.relative_to(input_dir).with_suffix("").as_posix()
     if Mcfunction.should_ignore(name):
         continue
-    with open(path, mode="r", encoding="utf-8") as mcfunction_file:
-        mcfunction_contents = mcfunction_file.read()
-        children = set(re.findall(RePattern.mcfunction, mcfunction_contents))
-        children = {child for child in children if not Mcfunction.should_ignore(child)}
-        mcfunctions[name] = Mcfunction(
-            name=name,
-            children=children,
-            comment=Mcfunction.get_comment(mcfunction_contents),
-        )
-        result_list = re.findall(RePattern.scoreboard, mcfunction_contents)
-        for i in result_list:
-            score_boards.add(i[1])
-            score_holders.add(i[0])
-        result_list = re.findall(RePattern.scoreboard_objective, mcfunction_contents)
-        for i in result_list:
-            score_boards.add(i)
-        result_list = re.findall(RePattern.scoreboard_player, mcfunction_contents)
-        for i in result_list:
-            score_holders.add(i)
-        result_list = re.findall(RePattern.tag, mcfunction_contents)
-        for i in result_list:
-            tags.add(i)
-        result_list = re.findall(RePattern.tags, mcfunction_contents)
-        for i in result_list:
-            tags |= set(ast.literal_eval(i))
-        result_list = re.findall(RePattern.storage, mcfunction_contents)
-        for i in result_list:
-            storages_set.add(i[0])
-            nbt_paths_set.add(i[0] + "." + i[1])
+    with open(path, mode="r", encoding="utf-8") as f:
+        mcfunction_contents = f.read()
+    if name not in mcfunctions:
+        mcfunctions[name] = Mcfunction(name=name)
+    mcfunctions[name].set_comment(mcfunction_contents)
+    for child_name in RePattern.mcfunction.findall(mcfunction_contents):
+        if Mcfunction.should_ignore(child_name):
+            continue
+        if child_name not in mcfunctions:
+            mcfunctions[child_name] = Mcfunction(name=child_name)
+        mcfunctions[name].children.add(mcfunctions[child_name])
 
-# 创建被调用了但是没有相应文件的函数
-new_mcfunctions = {}
-for name in mcfunctions:
-    for child in mcfunctions[name].children:
-        if child not in mcfunctions:
-            new_mcfunctions[child] = Mcfunction(name=child, children=set())
-mcfunctions.update(new_mcfunctions)
+    for holder, board in RePattern.score_holder_board.findall(mcfunction_contents):
+        score_boards.add(board)
+        score_holders.add(holder)
+    score_boards.update(RePattern.score_board.findall(mcfunction_contents))
+    score_holders.update(RePattern.score_holder.findall(mcfunction_contents))
+    tags.update(RePattern.tag.findall(mcfunction_contents))
+    for i in RePattern.tags.findall(mcfunction_contents):
+        tags.update(ast.literal_eval(i))
+    for storage, nbtpaths in RePattern.storage.findall(mcfunction_contents):
+        if storage not in nbt_paths_dict:
+            nbt_paths_dict[storage] = set()
+        nbt_paths_dict[storage].add(nbtpaths)
 
 # 获取每个函数的 parents
 for name in mcfunctions:
     for child in mcfunctions[name].children:
-        mcfunctions[child].parents.add(name)
+        child.parents.add(mcfunctions[name])
 
 # 生成树
 tree = 0
@@ -243,7 +219,9 @@ for name in mcfunctions:
 for name in mcfunctions:
     if mcfunctions[name].need_deepen:
         for child in mcfunctions[name].children:
-            mcfunctions[child].deepen(tree=tree, depth=mcfunctions[name].depth + 1)
+            d = mcfunctions[name].depth
+            assert d is not None
+            child.deepen(tree=tree, depth=d + 1)
         tree += 1
 
 # 设置颜色
@@ -272,9 +250,9 @@ arrow_styles: list[tuple[str, int]] = []
 # 每种箭头的样式，颜色宽度 -> 箭头id
 arrow_styles_dict: dict[tuple[str, int], set] = {}
 
-for name, mcfunction in mcfunctions.items():
-    for child in sorted(mcfunction.children):
-        arrows_part.append(f"{name} --> {child}")
+for name, mcfunction in sorted(mcfunctions.items()):
+    for child_name in sorted(child.name for child in mcfunction.children):
+        arrows_part.append(f"{name} --> {child_name}")
         arrow_styles.append((Color.get(mcfunction), Width.get(mcfunction)))
 
 for arrow_id, style in enumerate(arrow_styles):
@@ -289,63 +267,66 @@ arrow_styles_part = [
 
 nbt_paths: dict[str, NbtPath] = {}
 
-for path in nbt_paths_set:
-    path_parts = re.split(r"(?<=\])\.|\.|(?=\[)", path)
-    path_parts = [_ for _ in path_parts if _ != ""]
+for storage in nbt_paths_dict:
+    nbt_paths[storage] = NbtPath(name=storage, title=storage)
+    for p in nbt_paths_dict[storage]:
+        path_parts = [part for part in RePattern.pathsplit.split(p) if part]
+        key_parts = [storage, path_parts[0]]
+        child_name = ".".join(key_parts)
+        if child_name not in nbt_paths:
+            nbt_paths[child_name] = NbtPath(
+                name=child_name, title=key_parts[-1]
+            )
+        nbt_paths[storage].children.add(nbt_paths[child_name])
 
-    current_parts = []
-    for part in path_parts:
-        current_parts.append(part)
-        key = NbtPath.filter(".".join(current_parts))
-        parent_key = (
-            NbtPath.filter(".".join(current_parts[:-1]))
-            if len(current_parts) > 1
-            else None
-        )
-        if key not in nbt_paths:
-            nbt_paths[key] = NbtPath(name=key, title=current_parts[-1])
-        if parent_key is not None:
-            nbt_paths[parent_key].children.add(key)
+        for part in path_parts[1:]:
+            key = ".".join(key_parts)
+            key_parts.append(part)
+            value = f"{key}.{part}"
+            if value not in nbt_paths:
+                nbt_paths[value] = NbtPath(name=value, title=key_parts[-1])
+            nbt_paths[key].children.add(nbt_paths[value])
 
 Color.reset()
-for name in storages_set:
-    for child in nbt_paths[name].children:
-        nbt_paths[child].set_color(Color.give())
+for name in nbt_paths_dict:
+    for nbt_child in nbt_paths[name].children:
+        nbt_child.set_color(Color.give())
 
 nbt_frames_part: list[str] = [
-    f"{name}[{json.dumps(nbt_paths[name].title)}]" for name in nbt_paths
+    f"{nbt_paths[name].id}[{json.dumps(nbt_paths[name].title)}]"
+    for name in sorted(nbt_paths)
 ]
 
 nbt_frame_styles_part: list[str] = [
-    f"style {name} stroke:{Color.get(nbt_paths[name])},stroke-width:2px"
+    f"style {nbt_paths[name].id} stroke:{Color.get(nbt_paths[name])},stroke-width:2px"
     for name in nbt_paths
     if nbt_paths[name].color is not None
 ]
 
 nbt_arrows_part: list[str] = []
-arrow_styles: list[str] = []
-arrow_styles_dict: dict[str, set[int]] = {}
-for name, storage_path in nbt_paths.items():
-    for child in sorted(storage_path.children):
-        nbt_arrows_part.append(f"{name} --> {child}")
-        arrow_styles.append(
-            Color.get(storage_path) if storage_path.color is not None else None
+nbt_arrow_styles: list[str | None] = []
+nbt_arrow_styles_dict: dict[str, set[int]] = {}
+for name, nbt_path in sorted(nbt_paths.items()):
+    for child_name in sorted(child.name for child in nbt_path.children):
+        nbt_arrows_part.append(f"{nbt_paths[name].id} --> {nbt_paths[child_name].id}")
+        nbt_arrow_styles.append(
+            Color.get(nbt_path) if nbt_path.color is not None else None
         )
 
-for arrow_id, style in enumerate(arrow_styles):
-    if style is None:
+for arrow_id, nbt_style in enumerate(nbt_arrow_styles):
+    if nbt_style is None:
         continue
-    if style not in arrow_styles_dict:
-        arrow_styles_dict[style] = set()
-    arrow_styles_dict[style].add(arrow_id)
+    if nbt_style not in nbt_arrow_styles_dict:
+        nbt_arrow_styles_dict[nbt_style] = set()
+    nbt_arrow_styles_dict[nbt_style].add(arrow_id)
 
 nbt_arrow_styles_part = [
-    f'linkStyle {",".join(map(str,arrow_styles_dict[style]))} stroke:{style},stroke-width:2px;'
-    for style in arrow_styles_dict
+    f'linkStyle {",".join(map(str,nbt_arrow_styles_dict[style]))} stroke:{style},stroke-width:2px;'
+    for style in nbt_arrow_styles_dict
 ]
 
-with output_path.open(mode="w+", encoding="utf-8") as readme_file:
-    readme_file.write(
+with output_path.open(mode="w+", encoding="utf-8") as f:
+    f.write(
         f"""<head>
   <style>
     h1, code {{
@@ -361,7 +342,7 @@ with output_path.open(mode="w+", encoding="utf-8") as readme_file:
   </script>
   <h1>functions</h1>
   <pre class="mermaid">
-{graph_start}
+graph LR
 {"\n".join(frames_part + arrows_part + frame_styles_part + arrow_styles_part)}
   </pre>
   <h1>scoreboard objectives</h1>
@@ -384,12 +365,12 @@ with output_path.open(mode="w+", encoding="utf-8") as readme_file:
   </pre>
   <h1>storage</h1>
   <pre class="mermaid">
-{graph_start}
+graph LR
 {"\n".join(nbt_frames_part + nbt_arrows_part + nbt_frame_styles_part + nbt_arrow_styles_part)}
   </pre>
 </body>"""
     )
 
-print(f"已生成 {output_path}, 用时 {time.time()-start_time} 秒")
+print(f"已生成 {output_path}, 用时 {(time.perf_counter_ns() - start_time) * 1e-9} 秒")
 
 os.startfile(output_path)
