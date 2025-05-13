@@ -4,7 +4,7 @@ from pathlib import Path
 tag_dir = Path(".") / "data/teleport/tags"
 
 for path in tag_dir.rglob(f"*.json"):
-    with open(path, encoding="utf-8", mode="r+") as tag_file:
+    with path.open(mode="r+", encoding="utf-8") as tag_file:
         tag_dict = json.load(tag_file)
         tag_dict["values"].sort()
         tag_file.seek(0)

@@ -6,6 +6,7 @@ import random
 import re
 import time
 from pathlib import Path
+
 from colors import get_colors
 
 start_time = time.perf_counter_ns()
@@ -178,8 +179,7 @@ for path in input_dir.rglob(f"*.mcfunction"):
     name = path.relative_to(input_dir).with_suffix("").as_posix()
     if Mcfunction.should_ignore(name):
         continue
-    with open(path, mode="r", encoding="utf-8") as f:
-        mcfunction_contents = f.read()
+    mcfunction_contents = path.read_text(encoding="utf-8")
     if name not in mcfunctions:
         mcfunctions[name] = Mcfunction(name=name)
     mcfunctions[name].set_comment(mcfunction_contents)
@@ -274,9 +274,7 @@ for storage in nbt_paths_dict:
         key_parts = [storage, path_parts[0]]
         child_name = ".".join(key_parts)
         if child_name not in nbt_paths:
-            nbt_paths[child_name] = NbtPath(
-                name=child_name, title=key_parts[-1]
-            )
+            nbt_paths[child_name] = NbtPath(name=child_name, title=key_parts[-1])
         nbt_paths[storage].children.add(nbt_paths[child_name])
 
         for part in path_parts[1:]:
@@ -325,9 +323,7 @@ nbt_arrow_styles_part = [
     for style in nbt_arrow_styles_dict
 ]
 
-with output_path.open(mode="w+", encoding="utf-8") as f:
-    f.write(
-        f"""<head>
+html_text = f"""<head>
   <style>
     h1, code {{
       color: white;
@@ -369,7 +365,8 @@ graph LR
 {"\n".join(nbt_frames_part + nbt_arrows_part + nbt_frame_styles_part + nbt_arrow_styles_part)}
   </pre>
 </body>"""
-    )
+
+output_path.write_text(html_text, encoding="utf-8")
 
 print(f"已生成 {output_path}, 用时 {(time.perf_counter_ns() - start_time) * 1e-9} 秒")
 

@@ -10,9 +10,7 @@ for item_name in item_names:
     if loot_table_path.exists():
         print(f"{loot_table_path} 已存在")
     else:
-        with open(loot_table_path, encoding="utf-8", mode="w+") as f:
-            f.write(
-                f"""{{
+        text = f"""{{
   "pools": [
     {{
       "rolls": 1,
@@ -40,5 +38,5 @@ for item_name in item_names:
     }}
   ]
 }}"""
-            )
+        loot_table_path.write_text(text, encoding="utf-8")
         print(f"已生成 {loot_table_path}")

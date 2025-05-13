@@ -1,10 +1,10 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
 font_dir = Path(".") / "assets/teleport/font"
 
 for path in font_dir.rglob(f"*.json"):
-    with open(path, encoding="utf-8", mode="r+") as f:
+    with path.open(mode="r+", encoding="utf-8") as f:
         font_dict = json.load(f)
         font_dict["providers"].sort(key=lambda x: x["file"])
         f.seek(0)
