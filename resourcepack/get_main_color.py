@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
-from colorthief import ColorThief
+
+from colorthief import ColorThief  # type: ignore
 from PIL import Image
 
 input_path = Path(".") / "assets/teleport/textures/item/chest.png"

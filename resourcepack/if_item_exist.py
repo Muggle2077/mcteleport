@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 
@@ -26,25 +27,24 @@ item_extra = item_paths - both
 model_extra = model_paths - both
 texture_extra = texture_paths - both
 
-with output_path.open(mode="w+", encoding="utf-8") as f:
-    f.write(
-        f'''# 物品定义、模型、纹理都有
-```
-{'\n'.join(sorted(both))}
+text = f"""# 物品定义、模型、纹理都有
+```json
+{json.dumps(sorted(both),indent=2, ensure_ascii=False)}
 ```
 # 多余的物品定义
-```
-{'\n'.join(sorted(item_extra))}
+```json
+{json.dumps(sorted(item_extra),indent=2, ensure_ascii=False)}
 ```
 # 多余的模型
-```
-{'\n'.join(sorted(model_extra))}
+```json
+{json.dumps(sorted(model_extra),indent=2, ensure_ascii=False)}
 ```
 # 多余的纹理
-```
-{'\n'.join(sorted(texture_extra))}
-```'''
-    )
+```json
+{json.dumps(sorted(texture_extra),indent=2, ensure_ascii=False)}
+```"""
+
+output_path.write_text(text, encoding="utf-8")
 
 print(f"已生成 {output_path}")
 os.startfile(output_path)

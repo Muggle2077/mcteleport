@@ -1,4 +1,4 @@
-all_colors = {
+[
     0,
     95,
     128,
@@ -245,13 +245,5 @@ all_colors = {
     16777095,
     16777135,
     16777175,
-    16777215,
-}
-
-
-def get_colors(demand):
-    return [
-        color
-        for color in all_colors
-        if demand(max(color >> 16, (color >> 8) & 0xFF, color & 0xFF) / 255)
-    ]
+    16777215
+]
